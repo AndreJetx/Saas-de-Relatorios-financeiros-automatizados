@@ -1,0 +1,53 @@
+name: Import Roadmap Issues
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/github_issues.yaml'
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml requests
+
+      - name: Import issues from YAML
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          python - <<'EOF'
+          import yaml, requests, os
+
+          with open('.github/github_issues.yaml', 'r', encoding='utf-8') as f:
+              data = yaml.safe_load(f)
+
+          headers = {
+              "Authorization": f"token {os.getenv('GITHUB_TOKEN')}",
+              "Accept": "application/vnd.github+json"
+          }
+
+          for issue in data['issues']:
+              payload = {
+                  "title": issue["title"],
+                  "body": issue["body"],
+                  "labels": issue.get("labels", [])
+              }
+              r = requests.post(f"https://api.github.com/repos/{os.getenv('REPO')}/issues", json=payload, headers=headers)
+              print(f"[{r.status_code}] {issue['title']}")
+          EOF
