@@ -1,0 +1,272 @@
+issues:
+
+* title: "Setup Backend NestJS + Prisma"
+  body: |
+  **Fase:** 1 — Infraestrutura
+  **Descrição:** Criar backend base com autenticação, conexão PostgreSQL e CRUD de usuários/empresas.
+  **Prompt IA:**
+
+  ```
+  Crie um backend em Node.js com NestJS e TypeScript chamado "finreport-api".
+  Configure autenticação JWT, conexão com PostgreSQL e CRUD básico de usuários e empresas.
+  Inclua as entidades: User(id, name, email, password_hash, type), Company(id, user_id, name, created_at).
+  Implemente endpoints REST /auth/signup, /auth/login e /companies (CRUD).
+  Use Prisma ORM e gere o schema inicial.
+  ```
+
+  labels: ["backend", "infra", "auth"]
+  milestone: "Fase 1"
+
+* title: "Setup Frontend React + Tailwind"
+  body: |
+  **Fase:** 1 — Infraestrutura
+  **Descrição:** Criar frontend React + Vite com páginas básicas e autenticação.
+  **Prompt IA:**
+
+  ```
+  Crie um frontend React + Vite + TypeScript chamado "finreport-web".
+  Adicione TailwindCSS e configure rotas com React Router DOM.
+  Crie páginas: /login, /signup, /dashboard, /upload.
+  Integre com a API NestJS /auth/login e /signup.
+  ```
+
+  labels: ["frontend", "infra"]
+  milestone: "Fase 1"
+
+* title: "Docker e Redis Setup"
+  body: |
+  **Fase:** 1 — Infraestrutura
+  **Descrição:** Configurar docker-compose com API, PostgreSQL, Redis e pgAdmin.
+  **Prompt IA:**
+
+  ```
+  Gere docker-compose.yaml com:
+  - finreport-api (NestJS)
+  - PostgreSQL com volume persistente
+  - pgAdmin
+  - Redis
+  Inclua Dockerfile do backend e variáveis de ambiente.
+  ```
+
+  labels: ["infra", "docker"]
+  milestone: "Fase 1"
+
+* title: "Integração Stripe (assinaturas)"
+  body: |
+  **Fase:** 1 — Infraestrutura
+  **Descrição:** Criar módulo de billing com Stripe e integração de checkout.
+  **Prompt IA:**
+
+  ```
+  Adicione módulo de billing no NestJS com Stripe.
+  Endpoints:
+  POST /billing/checkout-session
+  Webhook /billing/webhook
+  Entidade Subscription(user_id, plan, status, current_period_end)
+  Integre frontend para redirecionar ao Stripe Checkout e mostrar status.
+  ```
+
+  labels: ["backend", "billing"]
+  milestone: "Fase 1"
+
+* title: "Upload CSV de Extratos"
+  body: |
+  **Fase:** 2 — Processamento
+  **Descrição:** Criar endpoint de upload e parsing de CSV.
+  **Prompt IA:**
+
+  ```
+  Adicione módulo "Transactions" ao backend.
+  Implemente POST /transactions/upload com multipart (CSV).
+  O backend deve ler, detectar colunas, converter para Transaction(company_id, date, amount, description, category_id, source_file) e salvar.
+  Use csv-parse.
+  ```
+
+  labels: ["backend", "files"]
+  milestone: "Fase 2"
+
+* title: "Categorização automática de transações"
+  body: |
+  **Fase:** 2 — Processamento
+  **Descrição:** Criar serviço que identifica categorias por palavras-chave.
+  **Prompt IA:**
+
+  ```
+  Crie serviço "CategorizationService" com dicionário de palavras-chave.
+  Exemplo: “mercado” → Alimentação, “pix recebido” → Receita.
+  Permita editar manualmente via PUT /transactions/:id.
+  Entidade Category(id, name, type).
+  ```
+
+  labels: ["backend", "ai", "data-processing"]
+  milestone: "Fase 2"
+
+* title: "Worker de processamento BullMQ"
+  body: |
+  **Fase:** 2 — Processamento
+  **Descrição:** Criar fila assíncrona de categorização e importação de transações.
+  **Prompt IA:**
+
+  ```
+  Adicione módulo "Tasks" com BullMQ + Redis.
+  Fila "transaction-processing".
+  Cada upload dispara job para categorizar e importar transações.
+  Crie GET /jobs/:id/status para consultar progresso.
+  ```
+
+  labels: ["backend", "infra", "queue"]
+  milestone: "Fase 2"
+
+* title: "Engine de Relatórios Financeiros"
+  body: |
+  **Fase:** 3 — Relatórios
+  **Descrição:** Implementar DRE, Fluxo de Caixa e KPIs.
+  **Prompt IA:**
+
+  ```
+  Crie módulo "Reports" no backend.
+  Implemente GET /reports/:company_id?type=dre&period=YYYY-MM.
+  Retorne JSON com dados de receitas, despesas, lucro, etc.
+  ```
+
+  labels: ["backend", "reports"]
+  milestone: "Fase 3"
+
+* title: "Exportação PDF de Relatórios"
+  body: |
+  **Fase:** 3 — Relatórios
+  **Descrição:** Gerar PDFs e armazenar URLs.
+  **Prompt IA:**
+
+  ```
+  Adicione geração PDF com pdfkit.
+  GET /reports/:id/pdf retorna PDF com layout (logotipo, data, tabela).
+  Salve em S3 e registre URL no banco.
+  ```
+
+  labels: ["backend", "reports", "pdf"]
+  milestone: "Fase 3"
+
+* title: "Dashboard e Gráficos"
+  body: |
+  **Fase:** 3 — Relatórios
+  **Descrição:** Criar dashboard em React com KPIs e gráficos Chart.js.
+  **Prompt IA:**
+
+  ```
+  Crie tela /dashboard em React:
+  - Cards com KPIs
+  - Gráfico de linha (Chart.js)
+  - Botão “Gerar PDF”
+  Integre com endpoints /reports.
+  ```
+
+  labels: ["frontend", "reports", "ui"]
+  milestone: "Fase 3"
+
+* title: "Sistema de Alertas Automáticos"
+  body: |
+  **Fase:** 4 — Automação
+  **Descrição:** Implementar alertas de saldo e despesas anormais.
+  **Prompt IA:**
+
+  ```
+  Crie módulo "Alerts".
+  Entidade Alert(id, company_id, type, threshold, active, last_triggered_at).
+  Cron job diário com node-cron verifica condições e envia e-mails.
+  ```
+
+  labels: ["backend", "automation", "email"]
+  milestone: "Fase 4"
+
+* title: "Agendamento de Relatórios"
+  body: |
+  **Fase:** 4 — Automação
+  **Descrição:** Gerar relatórios mensais automáticos e enviar e-mail.
+  **Prompt IA:**
+
+  ```
+  Crie serviço "Scheduler" que executa mensalmente:
+  - Gera DRE e fluxo de caixa
+  - Envia PDF ao dono da empresa
+  POST /scheduler/test-run força execução manual.
+  ```
+
+  labels: ["backend", "scheduler", "automation"]
+  milestone: "Fase 4"
+
+* title: "Painel Multiempresa"
+  body: |
+  **Fase:** 5 — Multiempresa
+  **Descrição:** Adicionar suporte a contadores e múltiplas empresas.
+  **Prompt IA:**
+
+  ```
+  Expanda modelo para suportar User.type = "accountant".
+  Módulo "Clients" permite adicionar empresas.
+  GET /accountant/companies retorna resumo financeiro.
+  Tela /clients exibe lista e KPIs.
+  ```
+
+  labels: ["backend", "frontend", "multi-tenant"]
+  milestone: "Fase 5"
+
+* title: "Templates de Relatórios Customizáveis"
+  body: |
+  **Fase:** 5 — Multiempresa
+  **Descrição:** Permitir edição de templates de relatórios.
+  **Prompt IA:**
+
+  ```
+  Crie entidade ReportTemplate(id, company_id, name, layout_json).
+  Permita POST /templates e uso em /reports/:id/pdf.
+  Frontend: /templates com editor visual básico.
+  ```
+
+  labels: ["frontend", "backend", "reports"]
+  milestone: "Fase 5"
+
+* title: "White-label e Branding"
+  body: |
+  **Fase:** 5 — Multiempresa
+  **Descrição:** Adicionar personalização de logo, cores e rodapé.
+  **Prompt IA:**
+
+  ```
+  Entidade Branding(company_id, logo_url, color_primary, footer_text).
+  Aplicar cores e logotipo nos PDFs e painéis.
+  Permitir contador definir branding padrão.
+  ```
+
+  labels: ["frontend", "branding", "customization"]
+  milestone: "Fase 5"
+
+* title: "Segurança e Logs de Auditoria"
+  body: |
+  **Fase:** Extra — Segurança
+  **Descrição:** Adicionar Helmet, rate limiting e logs de auditoria.
+  **Prompt IA:**
+
+  ```
+  Adicione middleware global de rate limiting, helmet e logs de auditoria (logins, uploads, relatórios).
+  Tabela AuditLog(user_id, action, timestamp, metadata).
+  Use Winston logger.
+  ```
+
+  labels: ["security", "backend"]
+  milestone: "Extra"
+
+* title: "Monitoramento Prometheus + Grafana"
+  body: |
+  **Fase:** Extra — Observabilidade
+  **Descrição:** Adicionar métricas e dashboards de performance.
+  **Prompt IA:**
+
+  ```
+  Adicione Prometheus no backend e Grafana.
+  Métricas: api_requests_total, reports_generated_total, job_queue_duration_seconds.
+  Forneça prometheus.yml e painel grafana.json.
+  ```
+
+  labels: ["monitoring", "devops"]
+  milestone: "Extra"
